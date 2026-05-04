@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}FinVault{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <div class="app-shell">
+    {% if user %}
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="{{ url_for('dashboard') }}">
+        <span class="brand-orb">₹</span>
+        <span><b>FinVault</b><small>Budget OS</small></span>
+      </a>
+      <nav>
+        <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+        <a href="{{ url_for('transactions') }}" class="nav-link">Transactions</a>
+        <a href="{{ url_for('receipts') }}" class="nav-link">Receipt Vault</a>
+        <a href="{{ url_for('budgets') }}" class="nav-link">Budgets</a>
+        <a href="{{ url_for('goals') }}" class="nav-link">Long-term Goals</a>
+        <a href="{{ url_for('recurring') }}" class="nav-link">Recurring</a>
+        <a href="{{ url_for('reports') }}" class="nav-link">Reports</a>
+      </nav>
+      <div class="sidebar-card">
+        <b>{{ user.name }}</b>
+        <span>{{ user.email }}</span>
+        <form method="post" action="{{ url_for('logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+          <button class="ghost-btn full" type="submit">Logout</button>
+        </form>
+      </div>
+    </aside>
+    {% endif %}
+
+    <main class="main-content {% if not user %}public{% endif %}">
+      {% if user %}
+      <header class="topbar">
+        <button class="icon-btn" id="menuBtn" type="button">☰</button>
+        <div>
+          <span class="eyebrow">Local secure finance tracker</span>
+          <h1>{% block page_heading %}Finance Manager{% endblock %}</h1>
+        </div>
+        <a class="primary-btn" href="{{ url_for('receipts') }}">Upload Receipt</a>
+      </header>
+      {% endif %}
+
+      <section class="flash-stack">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+      </section>
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

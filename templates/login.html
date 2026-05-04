@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Login | FinVault{% endblock %}
+{% block content %}
+<section class="auth-wrap reveal">
+  <form class="auth-card" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <span class="eyebrow">Welcome back</span>
+    <h1>Login securely</h1>
+    <label>Email<input name="email" type="email" required autocomplete="email" /></label>
+    <label>Password<input name="password" type="password" required autocomplete="current-password" /></label>
+    <button class="primary-btn full" type="submit">Login</button>
+    <p>New here? <a href="{{ url_for('register') }}">Create your account</a></p>
+  </form>
+</section>
+{% endblock %}

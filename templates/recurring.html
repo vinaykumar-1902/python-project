@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Recurring | FinVault{% endblock %}
+{% block page_heading %}Recurring Entries{% endblock %}
+{% block content %}
+<section class="form-grid">
+  <form class="panel reveal" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <div class="panel-head"><h2>Add Recurring Entry</h2><span>Rent, salary, subscriptions</span></div>
+    <label>Title<input name="title" required placeholder="Monthly rent, salary, internet bill..." /></label>
+    <div class="two-col">
+      <label>Type<select name="txn_type"><option value="expense">Expense</option><option value="income">Income</option></select></label>
+      <label>Amount<input name="amount" type="number" step="0.01" min="0" required /></label>
+      <label>Category<select name="category">{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></label>
+      <label>Frequency<select name="frequency"><option>monthly</option><option>weekly</option><option>daily</option><option>yearly</option></select></label>
+      <label>Next Date<input name="next_date" type="date" value="{{ today }}" /></label>
+    </div>
+    <button class="primary-btn" type="submit">Create Recurring</button>
+  </form>
+
+  <aside class="panel reveal delay-1">
+    <h2>Automation</h2>
+    <p class="muted">When you open the dashboard, due recurring entries are added automatically and the next date is advanced.</p>
+  </aside>
+</section>
+
+<section class="panel reveal">
+  <div class="panel-head"><h2>Recurring List</h2><span>Auto entries</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Title</th><th>Type</th><th>Category</th><th>Amount</th><th>Frequency</th><th>Next</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.title }}</td><td><span class="badge {{ row.txn_type }}">{{ row.txn_type }}</span></td><td>{{ row.category }}</td><td>₹{{ '%.2f'|format(row.amount) }}</td><td>{{ row.frequency }}</td><td>{{ row.next_date }}</td><td>{{ 'Active' if row.is_active else 'Paused' }}</td>
+        <td class="actions-cell">
+          <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}" /><input type="hidden" name="action" value="toggle" /><input type="hidden" name="item_id" value="{{ row.id }}" /><button class="ghost-btn mini" type="submit">Toggle</button></form>
+          <form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token }}" /><input type="hidden" name="action" value="delete" /><input type="hidden" name="item_id" value="{{ row.id }}" /><button class="danger-link" type="submit">Delete</button></form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="empty">No recurring entries yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

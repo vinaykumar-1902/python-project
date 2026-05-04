@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Transactions | FinVault{% endblock %}
+{% block page_heading %}Transactions{% endblock %}
+{% block content %}
+<section class="form-grid">
+  <form class="panel reveal" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <div class="panel-head"><h2>Add Transaction</h2><span>Income or expense</span></div>
+    <div class="two-col">
+      <label>Type<select name="txn_type"><option value="expense">Expense</option><option value="income">Income</option></select></label>
+      <label>Amount<input name="amount" type="number" step="0.01" min="0" required /></label>
+      <label>Category<select name="category">{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></label>
+      <label>Date<input name="txn_date" type="date" value="{{ today }}" required /></label>
+      <label>Merchant / Source<input name="merchant" maxlength="120" placeholder="Amazon, Salary, Canteen..." /></label>
+      <label>Account<input name="account" maxlength="80" value="Cash" /></label>
+    </div>
+    <label>Description<textarea name="description" rows="3" placeholder="Optional notes"></textarea></label>
+    <button class="primary-btn" type="submit">Save Transaction</button>
+  </form>
+
+  <aside class="panel reveal delay-1">
+    <h2>Smart Tip</h2>
+    <p class="muted">For receipt-backed spending, use the Receipt Vault. It stores proof and can auto-read totals from text/csv receipts.</p>
+    <a class="ghost-btn" href="{{ url_for('receipts') }}">Go to Receipt Vault</a>
+  </aside>
+</section>
+
+<section class="panel reveal">
+  <div class="panel-head"><h2>All Transactions</h2><a href="{{ url_for('export_csv') }}">Export CSV</a></div>
+  <form class="filterbar" method="get">
+    <input name="q" value="{{ q }}" placeholder="Search category, merchant, description..." />
+    <select name="kind"><option value="">All</option><option value="expense" {% if kind=='expense' %}selected{% endif %}>Expense</option><option value="income" {% if kind=='income' %}selected{% endif %}>Income</option></select>
+    <button class="ghost-btn" type="submit">Filter</button>
+  </form>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Merchant</th><th>Account</th><th>Amount</th><th></th></tr></thead>
+      <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.txn_date }}</td><td><span class="badge {{ row.txn_type }}">{{ row.txn_type }}</span></td>
+        <td>{{ row.category }}</td><td>{{ row.merchant or '-' }}</td><td>{{ row.account }}</td><td>₹{{ '%.2f'|format(row.amount) }}</td>
+        <td>
+          <form method="post" action="{{ url_for('delete_transaction', txn_id=row.id) }}" onsubmit="return confirm('Delete this transaction?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+            <button class="danger-link" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="empty">No transactions found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

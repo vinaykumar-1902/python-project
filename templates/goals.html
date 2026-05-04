@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Goals | FinVault{% endblock %}
+{% block page_heading %}Long-term Goals{% endblock %}
+{% block content %}
+<section class="form-grid">
+  <form class="panel reveal" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <div class="panel-head"><h2>Create Goal</h2><span>Future planning</span></div>
+    <label>Goal Title<input name="title" required placeholder="Emergency fund, laptop, trip..." /></label>
+    <div class="two-col">
+      <label>Target Amount<input name="target_amount" type="number" step="0.01" min="1" required /></label>
+      <label>Due Date<input name="due_date" type="date" /></label>
+    </div>
+    <button class="primary-btn" type="submit">Add Goal</button>
+  </form>
+
+  <aside class="panel reveal delay-1">
+    <h2>Unique Feature</h2>
+    <p class="muted">Use your yearly balance and savings progress to plan large purchases before they become sudden expenses.</p>
+  </aside>
+</section>
+
+<section class="goal-grid reveal">
+{% for row in rows %}
+  {% set percent = (row.saved_amount / row.target_amount * 100) if row.target_amount else 0 %}
+  <article class="goal-card">
+    <div class="panel-head"><h2>{{ row.title }}</h2><span>{{ row.due_date or 'No due date' }}</span></div>
+    <div class="progress tall"><i style="width: {{ [percent, 100]|min }}%"></i></div>
+    <p><b>₹{{ '%.2f'|format(row.saved_amount) }}</b> saved of ₹{{ '%.2f'|format(row.target_amount) }}</p>
+    <form method="post" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      <input type="hidden" name="action" value="update" />
+      <input type="hidden" name="goal_id" value="{{ row.id }}" />
+      <input name="saved_amount" type="number" step="0.01" min="0" value="{{ row.saved_amount }}" />
+      <button class="ghost-btn" type="submit">Update</button>
+    </form>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      <input type="hidden" name="action" value="delete" />
+      <input type="hidden" name="goal_id" value="{{ row.id }}" />
+      <button class="danger-link" type="submit">Delete Goal</button>
+    </form>
+  </article>
+{% else %}
+  <section class="panel"><p class="empty">No goals yet. Add one long-term target.</p></section>
+{% endfor %}
+</section>
+{% endblock %}

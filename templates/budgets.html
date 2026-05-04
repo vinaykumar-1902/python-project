@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Budgets | FinVault{% endblock %}
+{% block page_heading %}Budgets{% endblock %}
+{% block content %}
+<section class="form-grid">
+  <form class="panel reveal" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <div class="panel-head"><h2>Set Monthly Budget</h2><span>Per category limit</span></div>
+    <div class="two-col">
+      <label>Category<select name="category">{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></label>
+      <label>Monthly Limit<input name="monthly_limit" type="number" step="0.01" min="0" required /></label>
+    </div>
+    <button class="primary-btn" type="submit">Save Budget</button>
+  </form>
+
+  <aside class="panel reveal delay-1">
+    <h2>Budget Autopilot</h2>
+    <p class="muted">Budgets power your dashboard warnings, health score, and projected month-end spend calculation.</p>
+  </aside>
+</section>
+
+<section class="panel reveal">
+  <div class="panel-head"><h2>Current Month Usage</h2><span>Live spend vs limit</span></div>
+  <div class="budget-list">
+    {% for row in rows %}
+      {% set percent = (row.spent / row.monthly_limit * 100) if row.monthly_limit else 0 %}
+      <div class="budget-row">
+        <div><b>{{ row.category }}</b><span>₹{{ '%.2f'|format(row.spent) }} spent of ₹{{ '%.2f'|format(row.monthly_limit) }}</span></div>
+        <div class="progress"><i style="width: {{ [percent, 100]|min }}%"></i></div>
+        <strong>{{ '%.0f'|format(percent) }}%</strong>
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+          <input type="hidden" name="action" value="delete" />
+          <input type="hidden" name="budget_id" value="{{ row.id }}" />
+          <button class="danger-link" type="submit">Remove</button>
+        </form>
+      </div>
+    {% else %}
+      <p class="empty">No budgets set yet.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

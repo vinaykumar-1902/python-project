@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}FinVault | Finance & Budget Management{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy reveal">
+    <span class="pill">No payments • Localhost first • Receipt based</span>
+    <h1>Daily expenses, long-term budgets, and receipt intelligence in one secure website.</h1>
+    <p>
+      FinVault is a Python-powered finance and budget management system for tracking daily,
+      monthly, and yearly expenditure. Upload receipts, store proof, detect duplicates,
+      monitor budgets, forecast spending, and build long-term goals.
+    </p>
+    <div class="hero-actions">
+      <a class="primary-btn big" href="{{ url_for('register') }}">Create Account</a>
+      <a class="ghost-btn big" href="{{ url_for('login') }}">Login</a>
+    </div>
+  </div>
+  <div class="hero-card reveal delay-1">
+    <div class="glass-card budget-orbit">
+      <div class="orbit-ring"></div>
+      <div class="orbit-core">₹</div>
+      <h3>Smart Receipt Vault</h3>
+      <p>Upload png, jpg, pdf, txt, or csv receipts. Text receipts can auto-detect total amount.</p>
+    </div>
+  </div>
+</section>
+
+<section class="feature-grid public-grid">
+  <article class="feature-card reveal"><b>Duplicate receipt shield</b><span>SHA-256 fingerprinting prevents the same receipt from being stored twice.</span></article>
+  <article class="feature-card reveal"><b>Budget autopilot</b><span>Progress bars, alerts, monthly burn rate, and projected month-end spending.</span></article>
+  <article class="feature-card reveal"><b>Long-term goals</b><span>Track laptop funds, trips, emergency funds, or yearly savings targets.</span></article>
+  <article class="feature-card reveal"><b>Security by default</b><span>Password hashing, CSRF protection, rate limiting, and restricted file uploads.</span></article>
+</section>
+{% endblock %}

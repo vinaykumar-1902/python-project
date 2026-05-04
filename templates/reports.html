@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Reports | FinVault{% endblock %}
+{% block page_heading %}Reports{% endblock %}
+{% block content %}
+<section class="stats-grid reveal">
+  <article class="stat-card income"><span>{{ title }} Income</span><b>₹{{ '%.2f'|format(summary.income) }}</b></article>
+  <article class="stat-card expense"><span>{{ title }} Expense</span><b>₹{{ '%.2f'|format(summary.expense) }}</b></article>
+  <article class="stat-card balance"><span>{{ title }} Balance</span><b>₹{{ '%.2f'|format(summary.balance) }}</b></article>
+</section>
+
+<section class="panel reveal">
+  <div class="panel-head"><h2>{{ title }} Report</h2><a href="{{ url_for('export_csv') }}">Export Full CSV</a></div>
+  <div class="tabbar">
+    <a class="{{ 'active' if scope=='daily' else '' }}" href="{{ url_for('reports', scope='daily') }}">Daily</a>
+    <a class="{{ 'active' if scope=='monthly' else '' }}" href="{{ url_for('reports', scope='monthly') }}">Monthly</a>
+    <a class="{{ 'active' if scope=='yearly' else '' }}" href="{{ url_for('reports', scope='yearly') }}">Yearly</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Merchant</th><th>Description</th><th>Account</th><th>Amount</th></tr></thead>
+      <tbody>
+      {% for row in rows %}
+      <tr><td>{{ row.txn_date }}</td><td><span class="badge {{ row.txn_type }}">{{ row.txn_type }}</span></td><td>{{ row.category }}</td><td>{{ row.merchant or '-' }}</td><td>{{ row.description or '-' }}</td><td>{{ row.account }}</td><td>₹{{ '%.2f'|format(row.amount) }}</td></tr>
+      {% else %}
+      <tr><td colspan="7" class="empty">No records for this report.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

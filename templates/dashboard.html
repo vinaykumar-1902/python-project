@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | FinVault{% endblock %}
+{% block page_heading %}Dashboard{% endblock %}
+{% block content %}
+<section class="stats-grid reveal">
+  <article class="stat-card income"><span>This Month Income</span><b>₹{{ '%.2f'|format(data.month.income) }}</b></article>
+  <article class="stat-card expense"><span>This Month Expense</span><b>₹{{ '%.2f'|format(data.month.expense) }}</b></article>
+  <article class="stat-card balance"><span>This Month Balance</span><b>₹{{ '%.2f'|format(data.month.balance) }}</b></article>
+  <article class="stat-card"><span>Yearly Expense</span><b>₹{{ '%.2f'|format(data.year.expense) }}</b></article>
+</section>
+
+<section class="dashboard-grid">
+  <article class="panel reveal">
+    <div class="panel-head"><h2>Expense Pulse</h2><span>Daily spend this month</span></div>
+    <canvas id="dailyChart" data-labels='{{ data.day_labels | tojson }}' data-values='{{ data.day_values | tojson }}'></canvas>
+  </article>
+  <article class="panel reveal delay-1">
+    <div class="panel-head"><h2>Category Split</h2><span>Top spending areas</span></div>
+    <canvas id="categoryChart" data-labels='{{ data.category_labels | tojson }}' data-values='{{ data.category_values | tojson }}'></canvas>
+  </article>
+</section>
+
+<section class="dashboard-grid compact">
+  <article class="panel reveal">
+    <div class="health-ring" style="--score: {{ data.health_score }}">
+      <span>{{ data.health_score }}</span>
+    </div>
+    <h2>Financial Health Score</h2>
+    <p class="muted">Based on income-expense balance, active alerts, budget usage, and forecast risk.</p>
+    <div class="forecast-box">Projected month-end spend: <b>₹{{ '%.2f'|format(data.forecast) }}</b></div>
+  </article>
+
+  <article class="panel reveal delay-1">
+    <div class="panel-head"><h2>Smart Alerts</h2><span>Budget + anomaly monitor</span></div>
+    {% if data.alerts %}
+      <ul class="alert-list">
+        {% for alert in data.alerts %}<li>{{ alert }}</li>{% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">No risky spending pattern detected right now.</p>
+    {% endif %}
+  </article>
+</section>
+
+<section class="panel reveal">
+  <div class="panel-head"><h2>Budget Burn</h2><a href="{{ url_for('budgets') }}">Manage budgets</a></div>
+  {% if data.budgets %}
+  <div class="budget-list">
+    {% for b in data.budgets %}
+      {% set percent = (b.spent / b.monthly_limit * 100) if b.monthly_limit else 0 %}
+      <div class="budget-row">
+        <div><b>{{ b.category }}</b><span>₹{{ '%.2f'|format(b.spent) }} / ₹{{ '%.2f'|format(b.monthly_limit) }}</span></div>
+        <div class="progress"><i style="width: {{ [percent, 100]|min }}%"></i></div>
+        <strong>{{ '%.0f'|format(percent) }}%</strong>
+      </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <p class="empty">No budgets yet. Add category limits to activate budget burn tracking.</p>
+  {% endif %}
+</section>
+
+<section class="panel reveal">
+  <div class="panel-head"><h2>Recent Activity</h2><a href="{{ url_for('transactions') }}">View all</a></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Merchant</th><th>Amount</th></tr></thead>
+      <tbody>
+      {% for row in data.recent %}
+        <tr>
+          <td>{{ row.txn_date }}</td><td><span class="badge {{ row.txn_type }}">{{ row.txn_type }}</span></td>
+          <td>{{ row.category }}</td><td>{{ row.merchant or '-' }}</td><td>₹{{ '%.2f'|format(row.amount) }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="empty">Add your first transaction or upload a receipt.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}<script>window.FinVaultCharts && window.FinVaultCharts();</script>{% endblock %}

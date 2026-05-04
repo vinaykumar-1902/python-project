@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Receipt Vault | FinVault{% endblock %}
+{% block page_heading %}Receipt Vault{% endblock %}
+{% block content %}
+<section class="form-grid">
+  <form class="panel reveal" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <div class="panel-head"><h2>Upload Receipt</h2><span>Stores proof + expense</span></div>
+    <label>Receipt file<input name="receipt" type="file" accept=".png,.jpg,.jpeg,.pdf,.txt,.csv" required /></label>
+    <div class="two-col">
+      <label>Amount <small>optional for txt/csv</small><input name="amount" type="number" step="0.01" min="0" placeholder="Auto-detect or enter" /></label>
+      <label>Date<input name="txn_date" type="date" value="{{ today }}" /></label>
+      <label>Category<select name="category"><option value="">Auto-detect</option>{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></label>
+      <label>Account<input name="account" value="Cash" /></label>
+      <label>Merchant<input name="merchant" placeholder="Store / vendor name" /></label>
+    </div>
+    <label>Description<textarea name="description" rows="3" placeholder="What was this for?"></textarea></label>
+    <button class="primary-btn" type="submit">Upload & Save Expense</button>
+    <p class="muted small">Image/PDF OCR is not used here to keep the project simple and private. Enter amount manually for image/PDF receipts.</p>
+  </form>
+
+  <aside class="panel reveal delay-1 receipt-intel">
+    <h2>Receipt Intelligence</h2>
+    <ul class="check-list">
+      <li>Duplicate detection using SHA-256</li>
+      <li>Auto total extraction from txt/csv receipts</li>
+      <li>Category inference from merchant keywords</li>
+      <li>Private local storage in /uploads</li>
+    </ul>
+    {% if extracted %}
+      <div class="success-box">Detected ₹{{ '%.2f'|format(extracted.amount) }} under {{ extracted.category }}.</div>
+    {% endif %}
+  </aside>
+</section>
+
+<section class="panel reveal">
+  <div class="panel-head"><h2>Stored Receipts</h2><span>Proof-backed transactions</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Merchant</th><th>Category</th><th>Amount</th><th>Receipt</th></tr></thead>
+      <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.txn_date }}</td><td>{{ row.merchant or '-' }}</td><td>{{ row.category }}</td><td>₹{{ '%.2f'|format(row.amount) }}</td>
+        <td><a href="{{ url_for('receipt_file', filename=row.receipt_filename) }}" target="_blank">Open</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty">No receipts uploaded yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

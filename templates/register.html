@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Register | FinVault{% endblock %}
+{% block content %}
+<section class="auth-wrap reveal">
+  <form class="auth-card" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+    <span class="eyebrow">Start tracking</span>
+    <h1>Create your finance vault</h1>
+    <label>Name<input name="name" required maxlength="80" autocomplete="name" /></label>
+    <label>Email<input name="email" type="email" required autocomplete="email" /></label>
+    <label>Password<input name="password" type="password" required minlength="8" autocomplete="new-password" /></label>
+    <button class="primary-btn full" type="submit">Create Account</button>
+    <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+  </form>
+</section>
+{% endblock %}
